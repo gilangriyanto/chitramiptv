@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+// Import Header dan Footer dikomentari karena definisinya tidak disediakan.
+// Jika Anda memiliki komponen Header dan Footer, pastikan file-file tersebut ada
+// di direktori '../components/' dan aktifkan kembali import di bawah ini.
+// import Header from "../components/Header";
+// import Footer from "../components/Footer";
 
 const Cart = () => {
   const location = useLocation();
@@ -22,10 +25,7 @@ const Cart = () => {
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 flex items-center justify-center">
         <div className="text-center text-white">
           <h2 className="text-2xl font-bold mb-4">No Product Selected</h2>
-          <button
-            onClick={() => navigate("/buy-now")}
-            className="bg-pink-500 hover:bg-pink-600 px-6 py-3 rounded-lg font-medium transition-colors"
-          >
+          <button onClick={() => navigate("/buy-now")} className="bg-pink-500 hover:bg-pink-600 px-6 py-3 rounded-lg font-medium transition-colors">
             Back to Products
           </button>
         </div>
@@ -33,9 +33,10 @@ const Cart = () => {
     );
   }
 
-  const totalPrice = (
-    parseFloat(product.price.replace("₹", "")) * quantity
-  ).toFixed(2);
+  // Pastikan harga adalah string yang dapat diurai sebelum melakukan perhitungan
+  // Menghapus 'Rp ' dan mengganti koma dengan titik untuk parsing yang benar
+  const rawPrice = product.price.replace("Rp ", "").replace(".", "").replace(",", ".");
+  const totalPrice = (parseFloat(rawPrice) * quantity).toLocaleString("id-ID", { minimumFractionDigits: 2 }); // Format ulang total harga
 
   const handleInputChange = (e) => {
     setCustomerInfo({
@@ -47,62 +48,59 @@ const Cart = () => {
   const handleCheckout = () => {
     // Validate customer info
     if (!customerInfo.name || !customerInfo.phone) {
-      alert("Please fill in your name and phone number");
+      // Mengganti alert() dengan pesan di konsol atau modal kustom untuk Canvas.
+      // Untuk demonstrasi di Canvas, alert() mungkin tidak terlihat oleh pengguna.
+      console.warn("Harap isi nama lengkap dan nomor telepon Anda.");
+      alert("Harap isi nama lengkap dan nomor telepon Anda."); // Menggunakan alert untuk demonstrasi
       return;
     }
 
-    // Create WhatsApp message
-    const message = `🛒 *New Order Request*
+    // Membuat pesan WhatsApp
+    const message = `🛒 *Permintaan Pesanan Baru*
 
-📦 *Product Details:*
-• Product: ${product.name}
-• Price: ${product.price} each
-• Quantity: ${quantity}
-• Total: ₹${totalPrice}
+📦 *Detail Produk:*
+• Produk: ${product.name}
+• Harga Satuan: ${product.price}
+• Jumlah: ${quantity}
+• Total: Rp ${totalPrice}
+• Deskripsi: ${product.description}
+${product.category ? `• Kategori: ${product.category}` : ""}
 
-👤 *Customer Information:*
-• Name: ${customerInfo.name}
-• Phone: ${customerInfo.phone}
-• Email: ${customerInfo.email || "Not provided"}
-• Address: ${customerInfo.address || "Not provided"}
+📝 *Fitur Produk:*
+${product.features && product.features.length > 0 ? product.features.map((feature) => `• ${feature}`).join("\n") : "Tidak ada fitur yang tersedia."}
 
-📝 *Product Features:*
-${product.features.map((feature) => `• ${feature}`).join("\n")}
+👤 *Informasi Pelanggan:*
+• Nama: ${customerInfo.name}
+• Telepon: ${customerInfo.phone}
+• Email: ${customerInfo.email || "Tidak disediakan"}
+• Alamat: ${customerInfo.address || "Tidak disediakan"}
 
-Please confirm this order and provide payment details. Thank you!`;
+Mohon konfirmasi pesanan ini dan berikan detail pembayaran. Terima kasih!`;
 
-    // WhatsApp number (replace with actual business number)
-    const whatsappNumber = "919876543210"; // Replace with your WhatsApp business number
-    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-      message
-    )}`;
+    // Nomor WhatsApp (ganti dengan nomor bisnis Anda)
+    const whatsappNumber = "6281336353371"; // Ganti dengan nomor WhatsApp bisnis Anda
+    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-    // Open WhatsApp
+    // Buka WhatsApp
     window.open(whatsappURL, "_blank");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 font-inter">
+      {/* <Header /> -- Dikomentari untuk mengatasi error kompilasi */}
 
       <main className="px-6 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Page Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Shopping Cart
-            </h1>
-            <p className="text-white/80">
-              Review your order details and checkout
-            </p>
+            <h1 className="text-4xl font-bold text-white mb-4">Keranjang Belanja</h1>
+            <p className="text-white/80">Tinjau detail pesanan Anda dan lanjutkan checkout</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Details */}
             <div className="bg-white rounded-2xl p-8 shadow-xl">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                Product Details
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Detail Produk</h2>
 
               {/* Product Image */}
               <div className="w-full h-64 rounded-xl overflow-hidden mb-6">
@@ -131,36 +129,30 @@ Please confirm this order and provide payment details. Thank you!`;
               {/* Product Info */}
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">
-                    {product.name}
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
+                  {/* Deskripsi produk ditampilkan di sini */}
                   <p className="text-gray-600 mt-2">{product.description}</p>
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-800 mb-2">
-                    Features Included:
-                  </h4>
+                  <h4 className="font-semibold text-gray-800 mb-2">Fitur Termasuk:</h4>
                   <ul className="space-y-1">
-                    {product.features.map((feature, index) => (
-                      <li
-                        key={index}
-                        className="text-gray-700 flex items-center gap-2"
-                      >
-                        <span className="text-green-500">✓</span>
-                        {feature}
-                      </li>
-                    ))}
+                    {product.features && product.features.length > 0 ? (
+                      product.features.map((feature, index) => (
+                        <li key={index} className="text-gray-700 flex items-center gap-2">
+                          <span className="text-green-500">✓</span>
+                          {feature}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-500">Tidak ada fitur yang tersedia.</li>
+                    )}
                   </ul>
                 </div>
 
                 <div className="flex items-center justify-between py-4 border-t border-gray-200">
-                  <span className="text-lg font-semibold text-gray-800">
-                    Category:
-                  </span>
-                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {product.category}
-                  </span>
+                  <span className="text-lg font-semibold text-gray-800">Kategori:</span>
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">{product.category || "Tidak Dikategorikan"}</span>
                 </div>
               </div>
             </div>
@@ -169,34 +161,22 @@ Please confirm this order and provide payment details. Thank you!`;
             <div className="space-y-6">
               {/* Quantity & Price */}
               <div className="bg-white rounded-2xl p-8 shadow-xl">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  Order Summary
-                </h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Ringkasan Pesanan</h2>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Unit Price:</span>
-                    <span className="text-xl font-bold text-gray-800">
-                      {product.price}
-                    </span>
+                    <span className="text-gray-700">Harga Satuan:</span>
+                    <span className="text-xl font-bold text-gray-800">{product.price}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">Quantity:</span>
+                    <span className="text-gray-700">Jumlah:</span>
                     <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors"
-                      >
+                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors">
                         −
                       </button>
-                      <span className="text-xl font-semibold w-8 text-center">
-                        {quantity}
-                      </span>
-                      <button
-                        onClick={() => setQuantity(quantity + 1)}
-                        className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors"
-                      >
+                      <span className="text-xl font-semibold w-8 text-center">{quantity}</span>
+                      <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors">
                         +
                       </button>
                     </div>
@@ -204,12 +184,8 @@ Please confirm this order and provide payment details. Thank you!`;
 
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-gray-800">
-                        Total:
-                      </span>
-                      <span className="text-2xl font-bold text-purple-600">
-                        ₹{totalPrice}
-                      </span>
+                      <span className="text-xl font-bold text-gray-800">Total:</span>
+                      <span className="text-2xl font-bold text-purple-600">Rp {totalPrice}</span>
                     </div>
                   </div>
                 </div>
@@ -217,66 +193,56 @@ Please confirm this order and provide payment details. Thank you!`;
 
               {/* Customer Information */}
               <div className="bg-white rounded-2xl p-8 shadow-xl">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  Customer Information
-                </h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Informasi Pelanggan</h2>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Full Name *
-                    </label>
+                    <label className="block text-gray-700 font-medium mb-2">Nama Lengkap *</label>
                     <input
                       type="text"
                       name="name"
                       value={customerInfo.name}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
-                      placeholder="Enter your full name"
+                      placeholder="Masukkan nama lengkap Anda"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Phone Number *
-                    </label>
+                    <label className="block text-gray-700 font-medium mb-2">Nomor Telepon *</label>
                     <input
                       type="tel"
                       name="phone"
                       value={customerInfo.phone}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
-                      placeholder="Enter your phone number"
+                      placeholder="Masukkan nomor telepon Anda"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Email (Optional)
-                    </label>
+                    <label className="block text-gray-700 font-medium mb-2">Email (Opsional)</label>
                     <input
                       type="email"
                       name="email"
                       value={customerInfo.email}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
-                      placeholder="Enter your email"
+                      placeholder="Masukkan email Anda"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Address (Optional)
-                    </label>
+                    <label className="block text-gray-700 font-medium mb-2">Alamat (Opsional)</label>
                     <textarea
                       name="address"
                       value={customerInfo.address}
                       onChange={handleInputChange}
                       rows="3"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors resize-none"
-                      placeholder="Enter your delivery address"
+                      placeholder="Masukkan alamat pengiriman Anda"
                     ></textarea>
                   </div>
                 </div>
@@ -292,11 +258,8 @@ Please confirm this order and provide payment details. Thank you!`;
                   Checkout via WhatsApp
                 </button>
 
-                <button
-                  onClick={() => navigate("/buy-now")}
-                  className="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl font-medium transition-colors"
-                >
-                  ← Continue Shopping
+                <button onClick={() => navigate("/buy-now")} className="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl font-medium transition-colors">
+                  ← Lanjutkan Belanja
                 </button>
               </div>
             </div>
@@ -304,7 +267,7 @@ Please confirm this order and provide payment details. Thank you!`;
         </div>
       </main>
 
-      <Footer />
+      {/* <Footer /> -- Dikomentari untuk mengatasi error kompilasi */}
     </div>
   );
 };
